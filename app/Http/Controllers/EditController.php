@@ -69,6 +69,33 @@ class EditController extends Controller
 
                 return response()->json(['text' => $request->Login, 'typeMsg' => 'success']);
             }
+            case 'universities': {
+
+                $this->validate($request, [
+                    'name' => 'string|max:225|min:3',
+                    'description' => 'string|max:500|min:3'
+                ]);
+
+                $university = \App\University::find($request->id);
+
+                foreach($request->all() as $key => $value){
+
+                    if($key != '_token'){
+
+                        $university->$key = $value;
+
+                    }
+
+                }
+
+                $university->save();
+
+                $html = view("modules.{$table}.card" , compact('university') )->render();
+
+                return response()->json(['text' => $university->name , 'view' => $html, 'typeMsg' => 'success' ]);
+
+
+            }
         }
 
 

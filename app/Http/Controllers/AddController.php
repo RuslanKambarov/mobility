@@ -54,6 +54,33 @@ class AddController extends Controller
 
                 return response()->json(['text' => $user->Login , 'view' => $html, 'typeMsg' => 'success' ]);
             }//end user
+            case 'universities': {
+
+                $this->validate($request, [
+                    'name' => 'string|max:225|min:3',
+                    'description' => 'string|max:500|min:3'
+                ]);
+
+                $university = new \App\University;
+
+                foreach($request->all() as $key => $value){
+
+                    if($key != '_token'){
+
+                        $university->$key = $value;
+
+                    }
+
+                }
+
+                $university->save();
+
+                $html = view("modules.{$table}.card" , compact('university') )->render();
+
+                return response()->json(['text' => $university->name , 'view' => $html, 'typeMsg' => 'success' ]);
+
+
+            }
 
 
         }

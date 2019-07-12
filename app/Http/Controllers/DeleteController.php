@@ -26,6 +26,20 @@ class DeleteController extends Controller
 
                 return response()->json(['text' => $user->Login, 'typeMsg' => 'warning']);
             }
+
+            case 'universities': {
+
+                $university = \App\University::find($request->id);
+
+                $object = $university;
+
+                $university->delete();
+
+                Log::info('delete_universities', ['text' => $university->name]);
+
+                return response()->json(['text' => $university->name, 'typeMsg' => 'warning']);
+
+            }
         }
 
     
