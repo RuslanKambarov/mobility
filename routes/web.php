@@ -40,5 +40,6 @@ Route::group(['middleware' => 'auth', 'prefix' => 'delete'], function () {
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'sys'], function () {
-  Route::post('lang', 'LocaleJSController@index');
+  Route::post('lang', 'sysController@localeJS');
+  Route::post('notification', 'sysController@notifChange');
 });

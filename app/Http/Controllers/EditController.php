@@ -65,10 +65,12 @@ class EditController extends Controller
 
                 \App\User::where('id', '=', $request->id)->update($new_data);
 
-                Log::info('edit_users', ['id' => $request->id]);
+                Log::info('edit_users', ['text' => $request->Login]);
+
+                return response()->json(['text' => $request->Login, 'typeMsg' => 'success']);
             }
         }
 
-        return response()->json($request->all());
+
     }
 }

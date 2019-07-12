@@ -22,10 +22,12 @@ class DeleteController extends Controller
 
                 $user->delete();
 
-                Log::info('delete_users', ['id' => $object->id]);
+                Log::info('delete_users', ['text' => $user->Login]);
+
+                return response()->json(['text' => $user->Login, 'typeMsg' => 'warning']);
             }
         }
 
-        return response()->json($object);
+    
     }
 }

@@ -1,7 +1,7 @@
 @extends('layouts.appnav')
 
 @section('content')
-<div class="container h-100">
+<div id="content_of_module" class="container h-100">
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div id="statement" class="card">

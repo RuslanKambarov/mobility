@@ -33,6 +33,11 @@
     justify-content: space-around;
 }
 
+.list-style-none
+{
+    list-style-type: none;
+}
+
 .l-h-0
 {
     line-height: 0;
@@ -77,6 +82,11 @@
 .m-0
 {
     margin: 0;
+}
+
+.mt--06
+{
+    margin-top: -0.6rem;
 }
 
 .mt-0

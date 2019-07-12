@@ -762,6 +762,7 @@ if (typeof jQuery === 'undefined') {
   Dropdown.VERSION = '3.3.2'
 
   Dropdown.prototype.toggle = function (e) {
+    
     var $this = $(this)
 
     if ($this.is('.disabled, :disabled')) return
@@ -779,6 +780,8 @@ if (typeof jQuery === 'undefined') {
 
       var relatedTarget = { relatedTarget: this }
       $parent.trigger(e = $.Event('show.bs.dropdown', relatedTarget))
+
+      console.log(e);
 
       if (e.isDefaultPrevented()) return
 
@@ -839,7 +842,7 @@ if (typeof jQuery === 'undefined') {
       $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
 
       if (e.isDefaultPrevented()) return
-
+      
       $this.attr('aria-expanded', 'false')
       $parent.removeClass('open').trigger('hidden.bs.dropdown', relatedTarget)
     })

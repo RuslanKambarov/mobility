@@ -2,32 +2,16 @@ var data_action;//текущее действие редактирование/�
 var data_id;//текущий редактируемый объект при редактировании/удалении
 var _;//словарь локализации с сервера
 
-function async(url, successfunc, data, statusCode)
-{
-    $.ajax(
-        {
-            url: url, 
-            type: 'POST', 
-            dataType: 'json', 
-            data: data,
-            cache: true,
-            statusCode: statusCode,                              
-            error: function(req, text, error)
-            {
-                console.log(text + " | " + error);
-                toastr.error(text+" "+error, '');
-            },
-            success: function(json)
-            {   
-                successfunc(json);
-            }
-        });
-}
-
 $(document).ready(function () {
-    async('sys/lang', function(json){
+    ajax.data_action = 'sys/lang';
+
+    ajax.load(function(json){
         _ = json;//сохранение словаря локализации с сервера
-    } );
+    });
+});
+
+$('body').on('click', '.notification', function(){
+    ajax.updateNotifications($(this).data('id'));//обновление уведомлений
 });
 
 materialadmin.DemoUIMessages._toastrStateConfig();
@@ -44,17 +28,18 @@ $('body').on('click', "[data-action='formadd']", function(e){//делегиру�
 
 $('body').on('click', "[data-action='fetch']", function(e){//делегируется от body так как объект может быть создан динамически
     resetForm()
-    data_id = $(this).data('id');
+    //ajax.data_id = $(this).data('id');
     let target = $(this).attr('href');
     let object = $(this).attr('href').replace('#form-edit', '');
 
-    async('fetch/' + object, function(json)
-    {
+    ajax.data_action = 'fetch/' + object;
+    ajax.data_id = $(this).data('id');
+    ajax.data = { id : ajax.data_id};
 
+    ajax.load(function(json){
         console.log(target);
         DataToForm(json, target);
-
-    }, { id : data_id });
+    });
 });
 
 function DataToForm(data, form)
@@ -87,72 +72,64 @@ function resetForm(){
 }
 
 $("[data-action='add']").on('click', function(){
-    let action = $(this).data('action') + "/" + $(this).data('objects');
+    
+    ajax.data_action = $(this).data('action') + "/" + $(this).data('objects');  
+    ajax.data = formData(ajax.data_action);
 
-    async(action, 
-        function(json)
-        {
-            ajax.success(action, json);
-            materialadmin.AppOffcanvas._handleOffcanvasClose();
+    ajax.statusCode = {//statusCode
+                            422: function (data) {             
+                                    $.each(data.responseJSON.errors, function (key, value) {
+                                        $("input[name='"+key+"']").parent().addClass('has-error');
 
-        }, 
-        formData(action),
-        {//statusCode
-            422: function (data) {             
-                    $.each(data.responseJSON.errors, function (key, value) {
-                        $("input[name='"+key+"']").parent().addClass('has-error');
+                                        if(document.getElementById(key+"-error'"))
+                                        {
+                                            $("#"+key+"-error'").html(value);
+                                            $("#"+key+"-error'").css("display: block");
+                                        }
+                                        
+                                        $("input[name='"+key+"']").prop('aria-invalid', 'false')                           
+                                        console.log(key+" "+value);
+                                        toastr.error(key+" "+value, '');
+                                    })
+                            }
+                        };
 
-                        if(document.getElementById(key+"-error'"))
-                        {
-                            $("#"+key+"-error'").html(value);
-                            $("#"+key+"-error'").css("display: block");
-                        }
-                        
-                        $("input[name='"+key+"']").prop('aria-invalid', 'false')                           
-                        console.log(key+" "+value);
-                        toastr.error(key+" "+value, '');
-                    })
-            }
-        } 
-        );
+    ajax.crud();
 });
 
 $("[data-action='edit']").on('click', function(e){
-    let action = $(this).data('action') + "/" + $(this).data('objects');
+    
+    ajax.data_action = $(this).data('action') + "/" + $(this).data('objects');   
 
-    extend_action = formData(action);
-    extend_action['id'] = data_id;
+    extend_action = formData(ajax.data_action);
+    extend_action['id'] = ajax.data_id;
 
-    async(action, function(json)
-        {
-            ajax.success(action, json);
-            materialadmin.AppOffcanvas._handleOffcanvasClose();
+    ajax.data = extend_action;
+     
+    ajax.statusCode = {
+                            422: function (data) {             
+                                    $.each(data.responseJSON.errors, function (key, value) {
+                                        $("input[name='"+key+"']").parent().addClass('has-error');
 
-        }, 
-        extend_action, 
-        {//statusCode
-            422: function (data) {             
-                    $.each(data.responseJSON.errors, function (key, value) {
-                        $("input[name='"+key+"']").parent().addClass('has-error');
+                                        if(document.getElementById(key+"-error'"))
+                                        {
+                                            $("#"+key+"-error'").html(value);
+                                            $("#"+key+"-error'").css("display: block");
+                                        }
+                                        
+                                        $("input[name='"+key+"']").prop('aria-invalid', 'false')                           
+                                        console.log(key+" "+value);
+                                        toastr.error(key+" "+value, '');
+                                    })
+                            }
+                        };
+    ajax.crud();
 
-                        if(document.getElementById(key+"-error'"))
-                        {
-                            $("#"+key+"-error'").html(value);
-                            $("#"+key+"-error'").css("display: block");
-                        }
-                        
-                        $("input[name='"+key+"']").prop('aria-invalid', 'false')                           
-                        console.log(key+" "+value);
-                        toastr.error(key+" "+value, '');
-                    })
-            }
-        }
-        );
 });
 
 $('body').on('click', "[data-action='delete']", function(e){//делегируется от body так как объект может быть создан динамически
-    data_action = $(this).data('action') + "/" + $(this).data('objects');
-    data_id = $(this).data('id');
+    ajax.data_action = $(this).data('action') + "/" + $(this).data('objects');
+    ajax.data_id = $(this).data('id');
 
     $('#confirm-title').html(_['areyousure']);
     $('#confirm-message').html(_['datadelete']);
@@ -160,14 +137,10 @@ $('body').on('click', "[data-action='delete']", function(e){//делегируе
 });
 
 $("[data-action='confirmOK']").on('click', function(e){
-    async(data_action, function(json)
-    {
-        json.id = data_id;
-        ajax.success(data_action, json);
+   
+    ajax.data = { id : ajax.data_id };
+    ajax.crud();
 
-        materialadmin.AppOffcanvas._handleOffcanvasClose();
-
-    }, { id : data_id });
 });
 
 /*********************************************************************************************/
@@ -186,46 +159,77 @@ $("[data-action='confirmOK']").on('click', function(e){
 
 	};
     var p = ajax.prototype;
+    p.data = {};
+    p.data_action = "";
+    p.data_id = 0;
+    p.statusCode = {};
+    p._ = {};
     
     p.initialize = function() {};
 
-    p.success = function(method, json)
+    p.async = function(url, successfunc, data, statusCode)
     {
-        method = method.replace('/', '');
-
-        this[method](method, json);
+        $.ajax(
+            {
+                url: url, 
+                type: 'POST', 
+                dataType: 'json', 
+                data: data,
+                cache: true,
+                statusCode: statusCode,                              
+                error: function(req, text, error)
+                {
+                    console.log(text + " | " + error);
+                    toastr.error(text+" "+error, '');
+                },
+                success: function(json)
+                {    
+                    successfunc(json);
+                }
+            });
     }
 
-    //-----------------------------------------
-    p.addusers = function (action, json)
+    p.load = function(successfunc)
     {
-        let user = formData(action);
+        this.async(this.data_action, successfunc, this.data, this.statusCode);    
+    }
 
-        toastr.success(_[action] + ': ' + user.Login, '');
+    p.crud = function()
+    {
+        /*let method = this.data_action.split('/')[0];
+        this[method]();*/
+        this.async(this.data_action, (json) => {
 
-        let lastpage = $('#collapse'+ user.role_id +' .pagination').children().length - 1;
+            let action = this.data_action.replace('/', '');
+            toastr[json.typeMsg](_[action] + ': ' + json.text, '');
 
-        if( $('#collapse'+ user.role_id +' .pagination li:nth-child('+ lastpage +')').hasClass('active') || $('#collapse'+ user.role_id +' .pagination').length == 0 )
+            materialadmin.AppOffcanvas._handleOffcanvasClose();
+
+            $('#section_content_of_module').load(document.URL + ' #content_of_module');
+
+            p.updateNotifications();
+
+        }, this.data, this.statusCode);   
+    }
+
+    p.updateNotifications = function(id)
+    {
+        $('#notifications_count').load(document.URL + ' #notifications_count');
+
+        this.async('sys/notification', function(json)
         {
-            //$('#collapse'+ user.role_id+' > .card-body').append(json.view);
-            $('#collapse' + user.role_id).load(document.URL + ' #collapse' + user.role_id);
-        }
+            $('#notifications_count').load(document.URL + ' #notifications_count');
+
+            $('#notification_list').empty();
+
+            $('#notification_list').append(json.view);
+
+        }, { id : id });
+
+        setTimeout(function(){
+            $('#notifications').load(document.URL + ' #notifications');
+        }, 300);
     }
-
-    p.deleteusers = function (action, json)
-    {
-        toastr.info(_[action] + ': ' + json.Login, '');
-
-        $("[data-id='"+ json.id +"']").remove();
-    }
-
-    p.editusers = function (action, json)
-    {
-        toastr.success(_[action] , '');
-
-        $('#collapse' + json.role_id).load(document.URL + ' #collapse' + json.role_id);
-    }
-    //-----------------------------------------------
 
     window.ajax = new ajax;
 }(jQuery));

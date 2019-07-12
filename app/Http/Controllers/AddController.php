@@ -50,10 +50,14 @@ class AddController extends Controller
 
                 $html = view("modules.{$table}.card" , compact('user') )->render();
 
-                //Log::info('add_users', ['id' => $user->id]);
-            }
+                Log::info('add_users', ['text' => $user->Login]);
+
+                return response()->json(['text' => $user->Login , 'view' => $html, 'typeMsg' => 'success' ]);
+            }//end user
+
+
         }
 
-        return response()->json(['view' => $html ]);
+
     }
 }

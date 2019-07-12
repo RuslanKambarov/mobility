@@ -15,4 +15,25 @@ class Logs extends Model
     {
         return $this->find($id);
     }
+
+    static public function getContext($id)
+    {
+        
+        $str = str_replace('{', '', str_replace('}', '', self::find($id)['context'] ?? '') );
+
+        $array = explode(',', $str);
+        
+        $data = [];
+        foreach($array as $element)
+        {
+            $key = Str::before($element, ':');
+            $key = str_replace('"', '', $key);
+
+            $value = Str::after($element, ':');
+
+            $data[$key] = $value;
+        }
+
+        return $data;
+    }
 }

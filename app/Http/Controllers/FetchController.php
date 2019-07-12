@@ -16,9 +16,11 @@ class FetchController extends Controller
                    
                 $user = \App\User::find($request->id);
 
+                return response()->json($user);
+
             }
         }
 
-        return response()->json($user);
+
     }
 }

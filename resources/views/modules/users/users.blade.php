@@ -1,7 +1,7 @@
 @extends('layouts.appnav')
 
 @section('content')
-<div class="container-fluid">
+<div id="content_of_module" class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-sm-12">
 

@@ -92,31 +92,16 @@
 							</form>
                         </li>
                         
-                        @if (Auth::user()->roleId() != 3)
-                            <li class="dropdown hidden-xs">
-                                <a href="javascript:void(0);" class="btn btn-icon-toggle btn-default" data-toggle="dropdown">
-                                    <i class="fa fa-bell"></i><sup class="badge style-danger">4</sup>
-                                </a>
-                                <ul class="dropdown-menu animation-expand">
-                                    <li class="dropdown-header">Today's messages</li>
-                                    <li>
-                                        <a class="alert alert-callout alert-warning" href="javascript:void(0);">
-                                            <strong>Alex Anistor</strong><br/>
-                                            <small>Testing functionality...</small>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="alert alert-callout alert-info" href="javascript:void(0);">
-                                            <strong>Alicia Adell</strong><br/>
-                                            <small>Reviewing last changes...</small>
-                                        </a>
-                                    </li>
-                                    <li class="dropdown-header">Options</li>
-                                    <li><a href="../../html/pages/login.html">View all messages <span class="pull-right"><i class="fa fa-arrow-right"></i></span></a></li>
-                                    <li><a href="../../html/pages/login.html">Mark as read <span class="pull-right"><i class="fa fa-arrow-right"></i></span></a></li>
-                                </ul><!--end .dropdown-menu -->
-                            </li><!--end .dropdown -->
-                        @endif
+                        
+						<li class="dropdown hidden-xs">
+							<a id="notify" href="javascript:void(0);" class="btn btn-icon-toggle btn-default" data-toggle="dropdown">
+								<i class="fa fa-bell"></i><sup id="notifications_count" class="badge style-danger">{{App\Notifications::getMessagesCount(Auth::user()->id)}}</sup>
+							</a>
+							<ul id="notification_list" class="dropdown-menu animation-expand">
+							@include('modules.notifications.dropdownlist')
+							</ul><!--end .dropdown-menu -->
+						</li><!--end .dropdown -->
+                        
 						
 					</ul><!--end .header-nav-options -->
 					<ul class="header-nav header-nav-profile">
@@ -199,7 +184,7 @@
 						</ol>
 					</div>
 
-					<div class="section-body mt-0">
+					<div id="section_content_of_module" class="section-body mt-0">
                         @yield('content')
 					</div><!--end .section-body -->
 				</section>
